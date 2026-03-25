@@ -1,11 +1,14 @@
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { connectDB } from '@/lib/mongoose'
 import { Exam } from '@/models/Exam'
 import '@/models/Subject' // must be imported so Mongoose registers the schema before populate
 
 export async function GET() {
+  noStore()
   try {
     await connectDB()
     const exams = await Exam.find()

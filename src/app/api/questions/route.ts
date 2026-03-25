@@ -1,11 +1,14 @@
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { connectDB } from '@/lib/mongoose'
 import { Question } from '@/models/Question'
 import '@/models/Subject'
 
 export async function GET(req: Request) {
+  noStore()
   await connectDB()
   const { searchParams } = new URL(req.url)
   const subject = searchParams.get('subject')

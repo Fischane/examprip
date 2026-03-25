@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { connectDB } from '@/lib/mongoose'
 import { Payment } from '@/models/Payment'
 import { User } from '@/models/User'
@@ -11,6 +13,7 @@ import path from 'path'
 
 // Admin: get all payments
 export async function GET(req: Request) {
+  noStore()
   try {
     await connectDB()
     const { searchParams } = new URL(req.url)

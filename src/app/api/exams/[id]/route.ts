@@ -1,12 +1,15 @@
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { connectDB } from '@/lib/mongoose'
 import { Exam } from '@/models/Exam'
 import '@/models/Subject'
 import '@/models/Question'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  noStore()
   await connectDB()
   const exam = await Exam.findById(params.id)
     .populate('subject', 'name')
