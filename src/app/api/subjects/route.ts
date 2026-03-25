@@ -8,14 +8,22 @@ import { Subject } from '@/models/Subject'
 
 export async function GET() {
   noStore()
-  await connectDB()
-  const subjects = await Subject.find().sort({ name: 1 })
-  return NextResponse.json(subjects)
+  try {
+    await connectDB()
+    const subjects = await Subject.find().sort({ name: 1 })
+    return NextResponse.json(subjects)
+  } catch {
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+  }
 }
 
 export async function POST(req: Request) {
-  await connectDB()
-  const body = await req.json()
-  const subject = await Subject.create(body)
-  return NextResponse.json(subject)
+  try {
+    await connectDB()
+    const body = await req.json()
+    const subject = await Subject.create(body)
+    return NextResponse.json(subject)
+  } catch {
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+  }
 }

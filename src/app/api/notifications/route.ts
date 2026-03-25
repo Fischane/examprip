@@ -8,14 +8,22 @@ import { Notification } from '@/models/Notification'
 
 export async function GET() {
   noStore()
-  await connectDB()
-  const notifications = await Notification.find().sort({ createdAt: -1 })
-  return NextResponse.json(notifications)
+  try {
+    await connectDB()
+    const notifications = await Notification.find().sort({ createdAt: -1 })
+    return NextResponse.json(notifications)
+  } catch {
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+  }
 }
 
 export async function POST(req: Request) {
-  await connectDB()
-  const body = await req.json()
-  const n = await Notification.create(body)
-  return NextResponse.json(n)
+  try {
+    await connectDB()
+    const body = await req.json()
+    const n = await Notification.create(body)
+    return NextResponse.json(n)
+  } catch {
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+  }
 }

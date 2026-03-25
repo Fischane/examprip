@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/examprep'
+const MONGODB_URI = process.env.MONGODB_URI || ''
 
 declare global {
   // eslint-disable-next-line no-var
@@ -12,6 +12,7 @@ if (!global._mongoose) {
 }
 
 export async function connectDB() {
+  if (!MONGODB_URI) throw new Error('MONGODB_URI is not defined')
   if (global._mongoose.conn) return global._mongoose.conn
 
   if (!global._mongoose.promise) {
