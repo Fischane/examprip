@@ -9,8 +9,6 @@ import '@/models/Subject'
 import '@/models/User'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
 
 export async function GET() {
   noStore()
@@ -22,7 +20,7 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .lean()
     return NextResponse.json(materials)
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })
   }
 }
@@ -40,21 +38,18 @@ export async function POST(req: Request) {
 
     if (!file || !title) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
+    // Convert file to base64 data URL (works on Vercel — no filesystem needed)
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'materials')
-    await mkdir(uploadDir, { recursive: true })
-
-    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-    await writeFile(path.join(uploadDir, safeName), buffer)
+    const base64 = Buffer.from(bytes).toString('base64')
+    const mimeType = file.type || 'application/octet-stream'
+    const fileUrl = `data:${mimeType};base64,${base64}`
 
     await connectDB()
     const material = await Material.create({
       title,
       description: description || '',
       fileName: file.name,
-      fileUrl: `/uploads/materials/${safeName}`,
+      fileUrl,
       fileType: file.type || file.name.split('.').pop() || 'unknown',
       fileSize: file.size,
       subject: subject || undefined,

@@ -50,13 +50,18 @@ export async function POST(req: Request) {
 
     let screenshotUrl: string | undefined
     if (screenshot && screenshot.size > 0) {
-      const bytes = await screenshot.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'payments')
-      await mkdir(uploadDir, { recursive: true })
-      const safeName = `${Date.now()}-${screenshot.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-      await writeFile(path.join(uploadDir, safeName), buffer)
-      screenshotUrl = `/uploads/payments/${safeName}`
+      try {
+        const bytes = await screenshot.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+        const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'payments')
+        await mkdir(uploadDir, { recursive: true })
+        const safeName = `${Date.now()}-${screenshot.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+        await writeFile(path.join(uploadDir, safeName), buffer)
+        screenshotUrl = `/uploads/payments/${safeName}`
+      } catch {
+        // File system not writable (e.g. Vercel) — skip screenshot, continue with submission
+        screenshotUrl = undefined
+      }
     }
 
     await connectDB()
