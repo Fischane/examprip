@@ -14,6 +14,9 @@ const items = [
   { href: '/admin/payments', label: 'Payments' },
   { href: '/admin/results', label: 'Results' },
   { href: '/admin/analytics', label: 'Analytics' },
+  { href: '/admin/cv-templates', label: 'CV Templates' },
+  { href: '/admin/cv-analytics', label: 'CV Analytics' },
+  { href: '/admin/cv-settings', label: 'CV Settings' },
   { href: '/admin/notifications', label: 'Notifications' },
   { href: '/admin/settings', label: 'Settings' },
 ]

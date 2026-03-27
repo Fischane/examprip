@@ -11,7 +11,8 @@ const navItems = [
   { href: '/app/exams', label: 'Exams' },
   { href: '/app/materials', label: 'Materials' },
   { href: '/app/results', label: 'My Results' },
-  { href: '/app/cv', label: 'CV Maker' },
+  { href: '/app/cv/templates', label: 'CV Maker' },
+  { href: '/app/cv/dashboard', label: 'My CVs' },
   { href: '/app/payment', label: 'Payment' },
   { href: '/app/profile', label: 'Profile' },
 ]
