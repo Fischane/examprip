@@ -62,40 +62,97 @@ export default function CVMakerPage() {
   }
 
   function handlePrint() {
-    const content = printRef.current?.innerHTML
-    if (!content) return
+    const nameParts = cv.name.trim().split(' ')
+    const fn = nameParts.slice(0, -1).join(' ')
+    const ln = nameParts.slice(-1)[0] || cv.name
+
+    const sectionTitle = (icon: string, text: string) =>
+      `<div style="display:flex;align-items:center;gap:6px;font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:.1em;color:#f5a623;border-bottom:1px solid #444;padding-bottom:5px;margin:14px 0 8px">${icon} ${text}</div>`
+
+    const leftHtml = `
+      <div style="text-align:center;margin-bottom:14px">
+        ${cv.photo
+          ? `<img src="${cv.photo}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid #f5a623;display:inline-block"/>`
+          : `<div style="width:88px;height:88px;border-radius:50%;background:#555;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:30px">👤</div>`}
+      </div>
+      ${sectionTitle('👤', 'Contact Me')}
+      <div style="font-size:10px;color:#ccc;line-height:1.8">
+        ${cv.phone ? `<div>📞 ${cv.phone}</div>` : ''}
+        ${cv.phone2 ? `<div>📞 ${cv.phone2}</div>` : ''}
+        ${cv.website ? `<div>🌐 ${cv.website}</div>` : ''}
+        ${cv.email ? `<div>✉ ${cv.email}</div>` : ''}
+        ${cv.address ? `<div>📍 ${cv.address}</div>` : ''}
+      </div>
+      ${cv.references.some(r => r.name) ? `
+        ${sectionTitle('👥', 'References')}
+        ${cv.references.filter(r => r.name).map(r => `
+          <div style="margin-bottom:10px">
+            <div style="font-size:10px;font-weight:bold;color:#f5a623">${r.name}</div>
+            ${r.address ? `<div style="font-size:9px;color:#aaa">${r.address}</div>` : ''}
+            ${r.phone ? `<div style="font-size:9px;color:#aaa">${r.phone}</div>` : ''}
+            ${r.email ? `<div style="font-size:9px;color:#aaa">${r.email}</div>` : ''}
+          </div>`).join('')}` : ''}
+      ${cv.educations.some(e => e.school) ? `
+        ${sectionTitle('🎓', 'Education')}
+        ${cv.educations.filter(e => e.school).map(e => `
+          <div style="margin-bottom:10px">
+            <div style="font-size:10px;font-weight:bold;color:#f5a623;text-transform:uppercase">${e.school}</div>
+            <div style="font-size:9px;color:#aaa;text-transform:uppercase">${e.degree}</div>
+            <div style="font-size:9px;color:#777">${e.from}${e.to ? ` - ${e.to}` : ''}</div>
+          </div>`).join('')}` : ''}
+    `
+
+    const rightSectionTitle = (icon: string, text: string) =>
+      `<div style="display:flex;align-items:center;gap:6px;font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:.1em;color:#f5a623;border-bottom:2px solid #f5a623;padding-bottom:4px;margin:18px 0 10px">${icon} ${text}</div>`
+
+    const rightHtml = `
+      <div style="margin-bottom:18px">
+        <div style="font-size:26px;font-weight:900;color:#222;line-height:1.1">
+          ${fn ? `${fn} ` : ''}<span style="color:#f5a623">${ln}</span>
+        </div>
+        ${cv.title ? `<div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#999;margin-top:4px">${cv.title}</div>` : ''}
+      </div>
+      ${cv.summary ? `
+        ${rightSectionTitle('⭐', 'About Me')}
+        <p style="font-size:10px;color:#555;line-height:1.6">${cv.summary}</p>` : ''}
+      ${cv.experiences.some(e => e.role) ? `
+        ${rightSectionTitle('💼', 'Job Experience')}
+        ${cv.experiences.filter(e => e.role).map(e => `
+          <div style="margin-bottom:12px;padding-left:10px;border-left:2px solid #f5a623">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div style="font-size:11px;font-weight:bold;color:#222;text-transform:uppercase">${e.role}</div>
+              <div style="font-size:9px;color:#999;white-space:nowrap;margin-left:8px">${e.from}${e.to ? ` - ${e.to}` : ''}</div>
+            </div>
+            ${e.company ? `<div style="font-size:10px;color:#888;font-style:italic">${e.company}</div>` : ''}
+            ${e.desc ? `<div style="font-size:10px;color:#555;margin-top:3px;line-height:1.5">${e.desc}</div>` : ''}
+          </div>`).join('')}` : ''}
+      ${cv.skills.some(s => s.name) ? `
+        ${rightSectionTitle('⚡', 'Skills')}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px">
+          ${cv.skills.filter(s => s.name).map(s => `
+            <div>
+              <div style="font-size:10px;color:#333;margin-bottom:3px">${s.name}</div>
+              <div style="height:5px;background:#eee;border-radius:3px">
+                <div style="height:5px;background:#f5a623;border-radius:3px;width:${s.level}%"></div>
+              </div>
+            </div>`).join('')}
+        </div>` : ''}
+    `
+
     const win = window.open('', '_blank')
     if (!win) return
-    win.document.write(`<!DOCTYPE html><html><head><title>${cv.name} CV</title>
+    win.document.write(`<!DOCTYPE html><html><head><title>${cv.name || 'CV'}</title>
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:Arial,sans-serif;display:flex;min-height:100vh}
-      .left{width:220px;background:#2d2d2d;color:#fff;padding:24px 16px;flex-shrink:0}
-      .right{flex:1;padding:32px 28px;background:#fff}
-      .photo-wrap{text-align:center;margin-bottom:16px}
-      .photo-wrap img{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #f5a623}
-      .photo-placeholder{width:90px;height:90px;border-radius:50%;background:#444;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:28px;color:#888}
-      .left h2{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#f5a623;border-bottom:1px solid #444;padding-bottom:6px;margin:16px 0 10px;display:flex;align-items:center;gap:6px}
-      .left p{font-size:10px;color:#ccc;margin-bottom:3px;line-height:1.5}
-      .left .ref-name{font-size:11px;font-weight:bold;color:#f5a623;margin-bottom:2px}
-      .edu-school{font-size:11px;font-weight:bold;color:#f5a623}
-      .edu-degree{font-size:9px;text-transform:uppercase;color:#aaa;margin-bottom:2px}
-      .edu-year{font-size:9px;color:#888}
-      .right-name{font-size:28px;font-weight:900;color:#222;line-height:1}
-      .right-name span{color:#f5a623}
-      .right-title{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#888;margin-top:4px;margin-bottom:20px}
-      .right h2{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#f5a623;border-bottom:2px solid #f5a623;padding-bottom:4px;margin:20px 0 10px;display:flex;align-items:center;gap:6px}
-      .exp-role{font-size:12px;font-weight:bold;color:#222}
-      .exp-meta{font-size:10px;color:#888;margin-bottom:3px}
-      .exp-desc{font-size:10px;color:#555;line-height:1.5}
-      .skill-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-      .skill-name{font-size:10px;width:110px;color:#333}
-      .skill-bar{flex:1;height:5px;background:#eee;border-radius:3px}
-      .skill-fill{height:5px;background:#f5a623;border-radius:3px}
-      .exp-item{margin-bottom:12px;padding-left:10px;border-left:2px solid #f5a623}
+      body{font-family:Arial,sans-serif;display:flex;min-height:297mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
       @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-    </style></head><body>${content}</body></html>`)
-    win.document.close(); win.focus(); win.print()
+    </style></head>
+    <body>
+      <div style="width:200px;flex-shrink:0;background:#2d2d2d;color:#fff;padding:24px 16px;min-height:100vh">${leftHtml}</div>
+      <div style="flex:1;background:#fff;padding:32px 28px">${rightHtml}</div>
+    </body></html>`)
+    win.document.close()
+    setTimeout(() => { win.focus(); win.print() }, 300)
   }
 
   const nameParts = cv.name.trim().split(' ')
